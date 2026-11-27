@@ -95,9 +95,3 @@ int full(void)
     return 1;
 }
 
-
-
-    if (playing) freeBoard();                         /* [M1 LOGIC] window closed in the middle of a game */
-    CloseWindow();                                    /* [M3 FLOW] close the window and quit */
-    return 0;
-}
