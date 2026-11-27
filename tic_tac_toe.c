@@ -94,4 +94,3 @@ int full(void)
             if (b[r][c] == ' ') return 0;             /* found an empty square */
     return 1;
 }
-
