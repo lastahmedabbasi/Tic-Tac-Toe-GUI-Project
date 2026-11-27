@@ -135,7 +135,11 @@ int main(void)
             if (W > N) W = N;       /* a smaller board can't need a longer line */
 
             /* [M2 INTERFACE] draw the settings screen */
-            /* Interface code goes here - For Shella */
+            DrawText("SETTINGS", 190, 80, 48, DARKGRAY);
+            DrawText(TextFormat("Board size:  %d x %d", N, N), 120, 220, 36, DARKBLUE);
+            DrawText(TextFormat("Win with:  %d in a row", W), 120, 300, 36, DARKBLUE);
+            DrawText("Left/Right = size    Up/Down = win length", 100, 420, 20, GRAY);
+            DrawText("Press ENTER to start", 190, 480, 24, DARKGRAY);
            
             /* [M3 FLOW] Enter starts a new game: M1 builds an empty board createBoard(),
              * X goes first, clear the winner, and switch to the game screen */
@@ -161,8 +165,32 @@ int main(void)
             /* R after a game ends goes back to the settings screen */
             if (over && IsKeyPressed(KEY_R)) playing = 0;  /* back to settings */
 
-            /* [M2 INTERFACE] Status, Grid lines and Marks*/
-            /* Code goes here - For Shella */
+           /* status line */
+            /* [M2 INTERFACE] the sentence at the top: who won, a draw, or whose turn it
+            const char *msg = win != ' ' ? TextFormat("%c wins!  (R = new game)", win)
+                            : over        ? "Draw!  (R = new game)"
+                                          : TextFormat("%c's turn", turn);
+            DrawText(msg, (600 - MeasureText(msg, 36)) / 2, 40, 36, DARKGRAY);
+
+            /* grid and marks */
+            /* [M2 INTERFACE] grid: N squares per side need N + 1 lines each way.
+             * Line i is i squares in from the board's left (or top) edge.
+             * The first DrawLine in the loop is vertical, the second horizontal.
+             * fs = font size of the X and O: 3/4 of a square */
+            int fs = cell * 3 / 4;
+            for (int i = 0; i <= N; i++) {
+                DrawLine(x0 + i * cell, TOP, x0 + i * cell, TOP + N * cell, DARKGRAY);
+                DrawLine(x0, TOP + i * cell, x0 + N * cell, TOP + i * cell, DARKGRAY);
+            }
+            /* [M2 INTERFACE] marks: each square's letter is drawn as text, centred
+             * in the square. */
+            for (int r = 0; r < N; r++)
+                for (int c = 0; c < N; c++) {
+                    char s[2] = { b[r][c], 0 };
+                    DrawText(s, x0 + c * cell + (cell - MeasureText(s, fs)) / 2,
+                                TOP + r * cell + (cell - fs) / 2, fs,
+                                b[r][c] == 'X' ? DARKBLUE : MAROON);
+                }
 
 
 
