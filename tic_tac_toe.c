@@ -94,3 +94,83 @@ int full(void)
             if (b[r][c] == ' ') return 0;             /* found an empty square */
     return 1;
 }
+
+
+
+
+
+
+
+
+/* 
+ * [M3 FLOW] main
+ * Runs the whole program. It has two screens, chosen by the variable
+ * "playing": 0 = settings screen, 1 = the game.
+ * The [M2 INTERFACE] drawing code sits inside the same loop, because the
+ * window is drawn again in every frame.
+ */
+
+int main(void)
+{
+    /* ---- [M3 FLOW] open the window and set up the program state ---- */
+    InitWindow(600, 640, "Tic-Tac-Toe");
+    SetTargetFPS(60);                                 /* 60 frames per second */
+
+    int  playing = 0, over = 0;     /* playing: 0 = settings, 1 = game
+                                     * over   : 1 once someone has won or the board is full */
+    char turn = 'X', win = ' ';     /* turn: whose move it is
+                                     * win : the winner, ' ' = nobody yet */
+
+    while (!WindowShouldClose()) {  /* [M3] one pass of this loop = one frame; ends on Esc or closing the window */
+        BeginDrawing();
+        ClearBackground(RAYWHITE);                    /* wipe the previous frame */
+
+        if (!playing) {                                   /* ---- settings ---- */
+
+
+            if (IsKeyPressed(KEY_RIGHT) && N < MAX_N) N++;
+            if (IsKeyPressed(KEY_LEFT)  && N > 3)     N--;
+            if (IsKeyPressed(KEY_UP)    && W < N)     W++;
+            if (IsKeyPressed(KEY_DOWN)  && W > 3)     W--;
+            if (W > N) W = N;       /* a smaller board can't need a longer line */
+
+            /* [M2 INTERFACE] draw the settings screen */
+            /* Interface code goes here - For Shella */
+           
+            /* [M3 FLOW] Enter starts a new game: M1 builds an empty board createBoard(),
+             * X goes first, clear the winner, and switch to the game screen */
+            if (IsKeyPressed(KEY_ENTER)) {
+                if (createBoard()) break; // createBoard() returns 1 if malloc fails
+                turn = 'X'; win = ' '; over = 0; playing = 1;
+            }
+        } else {                                          /* ---- game ---- */
+
+            int cell = BOARD / N, x0 = (600 - cell * N) / 2;
+
+            if (!over && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                Vector2 m = GetMousePosition();           /* m.x, m.y = cursor in pixels */
+                int c = (int)(m.x - x0) / cell, r = (int)(m.y - TOP) / cell;
+                if (m.x >= x0 && m.x < x0 + N * cell && m.y >= TOP && m.y < TOP + N * cell
+                    && b[r][c] == ' ') {
+                    b[r][c] = turn;                       /* place the mark */
+                    win = winner();                       /* [M1 LOGIC] did this move win? */
+                    if (win != ' ' || full()) over = 1;   /* [M1 LOGIC] a win, or a full board = draw */
+                    else turn = (turn == 'X') ? 'O' : 'X';/* game goes on: pass the turn */
+                }
+            }
+            /* R after a game ends goes back to the settings screen */
+            if (over && IsKeyPressed(KEY_R)) playing = 0;  /* back to settings */
+
+            /* [M2 INTERFACE] Status, Grid lines and Marks*/
+            /* Code goes here - For Shella */
+
+
+
+            if (!playing) freeBoard();
+        }
+        EndDrawing();
+    }
+    if (playing) freeBoard();                         /* in case window closed in the middle of a game */
+    CloseWindow();                                    /* close the window and quit */
+    return 0;
+}
